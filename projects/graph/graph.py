@@ -1,4 +1,16 @@
 """
+DFT/DFS vs BFT/BFS
+
+When is DFS betteR?
+
+- might find the longest path
+- if the node you're looking is a leaf
+- can also be implemented recursively, or randomly
+
+When is BFS better?
+- finds shortest path
+
+
 Simple graph implementation
 """
 from util import Stack, Queue  # These may come in handy
@@ -79,7 +91,7 @@ class Graph:
         # make a set to track which node we have visited
         visited = set()
 
-        # enqueue starting node
+        # push starting node
         s.push(starting_vertex)
 
         # loop while stack isn't empty
@@ -101,14 +113,28 @@ class Graph:
                 for neighbor in neighbors:
                     s.push(neighbor)
 
-    def dft_recursive(self, starting_vertex):
+    def dft_recursive(self, vertex, visited=set()):
         """
         Print each vertex in depth-first order
         beginning from starting_vertex.
 
         This should be done using recursion.
+
+        # base case 
+
+        # need to call itself
         """
-        pass  # TODO
+        if vertex not in visited:
+            print(vertex)
+
+            visited.add(vertex)
+
+            neighbors = self.get_neighbors(vertex)
+            if len(neighbors) == 0:
+                return
+            else:
+                for neighbor in neighbors:
+                    self.dft_recursive(neighbor, visited)
 
     def bfs(self, starting_vertex, destination_vertex):
         """
@@ -116,28 +142,138 @@ class Graph:
         starting_vertex to destination_vertex in
         breath-first order.
 
+        1. stop when we find the target node
+        2. return the path we took to get there
+            note: this will automatically be the shortest path
+
         Enqueue a PATH TO the starting node, insted of just the starting node        
 
         """
-        pass  # TODO
+        # make a queue
+        q = Queue()
+
+        # make a set to track which node we have visited
+        visited = set()
+
+        # enqueue the PATH to the starting node
+        q.enqueue([starting_vertex])
+
+        # loop while queue isn't empty
+        while q.size() > 0:
+            # dequeue, this is our current node
+            current_path = q.dequeue()
+            current_node = current_path[-1]
+
+            # check if we have found our target node
+            if current_node == destination_vertex:
+                # then we are done! return
+                return current_path
+
+            # check if we've yet visited
+            if current_node not in visited:
+                print(current_node)
+
+                # if not, we go to the node
+                # mark visited == add to visited set
+                visited.add(current_node)
+
+            # get the neighbors
+                neighbors = self.get_neighbors(current_node)
+            # iterate over the neighbors, enqueue the PATH to them
+                for neighbor in neighbors:
+                    # path_copy = list(current_path)
+                    # path_copy.append(neighbor)
+                    # path_copy  = current_path.copy()
+                    # path_copy = copy.copy(current_path)
+                    # path_copy = current_path[:]
+
+                    # path_copy.append(neighbor)
+
+                    path_copy = current_path + [neighbor]
+
+                    q.enqueue(path_copy)
 
     def dfs(self, starting_vertex, destination_vertex):
         """
         Return a list containing a path from
         starting_vertex to destination_vertex in
         depth-first order.
-        """
-        pass  # TODO
 
-    def dfs_recursive(self, starting_vertex, destination_vertex):
+        will not necessarily be the shortest path!
+        """
+               # make a queue
+        s = Stack()
+
+        # make a set to track which node we have visited
+        visited = set()
+
+        # enqueue the PATH to the starting node
+        s.push([starting_vertex])
+
+        # loop while queue isn't empty
+        while s.size() > 0:
+            # pop, this is our current node
+            current_path = s.pop()
+            current_node = current_path[-1]
+
+            # check if we have found our target node
+            if current_node == destination_vertex:
+                # then we are done! return
+                return current_path
+
+            # check if we've yet visited
+            if current_node not in visited:
+                print(current_node)
+
+                # if not, we go to the node
+                # mark visited == add to visited set
+                visited.add(current_node)
+
+            # get the neighbors
+                neighbors = self.get_neighbors(current_node)
+            # iterate over the neighbors, enqueue the PATH to them
+                for neighbor in neighbors:
+                    # path_copy = list(current_path)
+                    # path_copy.append(neighbor)
+                    # path_copy  = current_path.copy()
+                    # path_copy = copy.copy(current_path)
+                    # path_copy = current_path[:]
+
+                    # path_copy.append(neighbor)
+
+                    path_copy = current_path + [neighbor]
+
+                    s.push(path_copy)
+
+    def dfs_recursive(self, starting_vertex, destination_vertex, path=[],  visited=set()):
         """
         Return a list containing a path from
         starting_vertex to destination_vertex in
         depth-first order.
 
         This should be done using recursion.
+
         """
-        pass  # TODO
+        if len(path) == 0:
+            path.append(starting_vertex)
+
+        if starting_vertex == destination_vertex:
+            return path
+
+        if starting_vertex not in visited:
+            visited.add(starting_vertex)
+
+            neighbors = self.get_neighbors(starting_vertex)
+
+            for neighbor in neighbors:
+                path_copy = path + [neighbor]
+
+                # only return if we found the destination_vertex
+
+                result = self.dfs_recursive(
+                    neighbor, destination_vertex, path_copy, visited)
+                if result is not None:
+                    return result
 
 
 if __name__ == '__main__':
@@ -162,6 +298,20 @@ if __name__ == '__main__':
     graph.add_edge(4, 6)
 
     '''
+    starting_vertex: 1
+    destination_vertex: 7
+
+    q = Queue([1])
+    visited = set()
+
+    current_path = [1]
+    current_node = current_path[-1]
+
+    1: [1]
+    2: [1, 2]
+    3: [1, 2, 3]
+    5: [1, 2, 3, 5]
+
     Should print:
         {1: {2}, 2: {3, 4}, 3: {5}, 4: {6, 7}, 5: {3}, 6: {3}, 7: {1, 6}}
     '''
